@@ -22,7 +22,6 @@
       --green: #22c55e;
       --amber: #f59e0b;
       --red: #ef4444;
-      --blue: #3b82f6;
       --font-head: 'Syne', sans-serif;
       --font-body: 'DM Sans', sans-serif;
       --font-mono: 'DM Mono', monospace;
@@ -31,101 +30,9 @@
     html, body { height: 100%; overflow: hidden; }
     body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
 
-    /* ── Screens ──────────────────────────────────────────────────────────── */
-    .screen { display: none; height: 100vh; overflow: hidden; }
-    .screen.active { display: flex; }
-
-    /* ── Login ────────────────────────────────────────────────────────────── */
-    #login-screen {
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,106,255,0.12) 0%, transparent 60%);
-    }
-
-    .login-card {
-      background: var(--bg2);
-      border: 1px solid var(--border2);
-      border-radius: 20px;
-      padding: 48px 40px;
-      width: 380px;
-      position: relative;
-    }
-
-    .login-card::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 21px;
-      background: linear-gradient(135deg, rgba(124,106,255,0.3), transparent 50%, rgba(34,197,94,0.15));
-      z-index: -1;
-      pointer-events: none;
-    }
-
-    .login-logo {
-      font-family: var(--font-head);
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, #fff 40%, var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .login-sub { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
-
-    .field { margin-bottom: 16px; }
-    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
-    .field input {
-      width: 100%;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .field input:focus { border-color: var(--accent); }
-
-    .login-btn {
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 12px;
-      font-family: var(--font-head);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .login-btn:hover { opacity: 0.9; }
-    .login-btn:active { transform: scale(0.98); }
-
-    .login-hint {
-      margin-top: 20px;
-      padding: 14px;
-      background: var(--bg3);
-      border-radius: 10px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .login-hint span { color: var(--text); font-family: var(--font-mono); }
-
-    .login-error {
-      color: var(--red);
-      font-size: 13px;
-      margin-top: 10px;
-      display: none;
-    }
-
     /* ── App Layout ───────────────────────────────────────────────────────── */
     #app-screen {
+      display: flex;
       flex-direction: row;
       height: 100vh;
     }
@@ -147,6 +54,7 @@
       font-weight: 700;
       padding: 4px 8px 20px;
       background: linear-gradient(135deg, #fff 40%, var(--accent2));
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -211,24 +119,6 @@
     .nav-item:hover { background: var(--bg3); color: var(--text); }
     .nav-item.active { background: rgba(124,106,255,0.12); color: var(--accent2); }
     .nav-icon { width: 18px; text-align: center; font-size: 15px; }
-
-    .sidebar-bottom { margin-top: auto; }
-    .logout-btn {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-      background: none;
-      border: none;
-      font-family: var(--font-body);
-    }
-    .logout-btn:hover { color: var(--red); background: rgba(239,68,68,0.08); }
 
     /* ── Main content ────────────────────────────────────────────────────── */
     .main {
@@ -425,33 +315,8 @@
 </head>
 <body>
 
-<!-- ── Login Screen ─────────────────────────────────────────────────────── -->
-<div id="login-screen" class="screen active">
-  <div class="login-card">
-    <div class="login-logo">ScholarAI</div>
-    <div class="login-sub">Role-aware intelligent database assistant</div>
-
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="login-user" value="admin" placeholder="Enter username">
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="login-pass" value="admin123" placeholder="Enter password">
-    </div>
-    <div id="login-error" class="login-error">Invalid credentials. Please try again.</div>
-    <button class="login-btn" onclick="login()">Sign in →</button>
-
-    <div class="login-hint">
-      <strong>Demo accounts:</strong><br>
-      Admin: <span>admin</span> / <span>admin123</span><br>
-      Student: <span>john_doe</span> / <span>student123</span>
-    </div>
-  </div>
-</div>
-
 <!-- ── App Screen ───────────────────────────────────────────────────────── -->
-<div id="app-screen" class="screen">
+<div id="app-screen">
 
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
@@ -467,7 +332,7 @@
 
     <div class="nav-section-label" id="nav-label">Navigation</div>
 
-    <div class="nav-item active" id="nav-dashboard" onclick="showPane('dashboard')" style="display:none">
+    <div class="nav-item active" id="nav-dashboard" onclick="showPane('dashboard')">
       <span class="nav-icon">◈</span> Dashboard
     </div>
     <div class="nav-item" id="nav-courses" onclick="showPane('courses')">
@@ -475,12 +340,6 @@
     </div>
     <div class="nav-item" id="nav-chat" onclick="showPane('chat')">
       <span class="nav-icon">◎</span> AI Assistant
-    </div>
-
-    <div class="sidebar-bottom">
-      <button class="logout-btn" onclick="logout()">
-        <span>⊗</span> Sign out
-      </button>
     </div>
   </div>
 
@@ -491,7 +350,7 @@
       <div class="inference-badge" id="inference-badge">⬡ FastAPI · Ollama</div>
     </div>
 
-    <!-- Dashboard Pane (admin only) -->
+    <!-- Dashboard Pane -->
     <div class="content-pane active" id="dashboard-pane">
       <div class="stats-grid" id="stats-grid">
         <div class="stat-card purple">
@@ -531,7 +390,7 @@
       </div>
     </div>
 
-    <!-- Courses Pane (all roles) -->
+    <!-- Courses Pane -->
     <div class="content-pane" id="courses-pane">
       <div class="card">
         <div class="card-title">Available Courses</div>
@@ -569,8 +428,15 @@
 </div>
 
 <script>
-  const API = ''; // Empty defaults to current host/port, perfect for FastAPI static files
-  let currentUser = null;
+  const API = ''; 
+  
+  // ── HARDCODED USER (Bypass Login) ─────────────────────────────────────────
+  // Change role to 'student' if you want to test restricted access
+  let currentUser = {
+    username: 'admin',
+    role: 'admin'
+  };
+  
   let chatHistory = [];
 
   const QUICK_QUERIES = {
@@ -587,40 +453,8 @@
     ]
   };
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
-  async function login() {
-    const username = document.getElementById('login-user').value.trim();
-    const password = document.getElementById('login-pass').value.trim();
-    const errEl = document.getElementById('login-error');
-    errEl.style.display = 'none';
-
-    try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      if (!res.ok) { errEl.style.display = 'block'; return; }
-
-      const data = await res.json();
-      currentUser = data.user;
-      setupUI();
-      document.getElementById('login-screen').classList.remove('active');
-      document.getElementById('app-screen').classList.add('active');
-    } catch (e) {
-      errEl.textContent = 'Server not running. Start with: uvicorn app.main:app';
-      errEl.style.display = 'block';
-    }
-  }
-
-  function logout() {
-    currentUser = null;
-    chatHistory = [];
-    document.getElementById('chat-messages').innerHTML = '';
-    document.getElementById('app-screen').classList.remove('active');
-    document.getElementById('login-screen').classList.add('active');
-  }
+  // Run automatically when the page loads
+  document.addEventListener('DOMContentLoaded', setupUI);
 
   // ── UI Setup ──────────────────────────────────────────────────────────────
   function setupUI() {
@@ -673,8 +507,16 @@
   async function loadStats() {
     try {
       const stats = await fetch(`${API}/api/stats`, {
-        headers: { 'x-user-role': 'admin' }
+        headers: { 
+            'x-user-role': currentUser.role,
+            'x-username': currentUser.username 
+        }
       }).then(r => r.json());
+
+      if (stats.error) {
+        console.error("Backend error:", stats.error);
+        return;
+      }
 
       document.getElementById('s-total').textContent = stats.totalStudents;
       document.getElementById('s-active').textContent = `${stats.activeStudents} active`;
@@ -865,11 +707,6 @@
   function now() {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
-
-  // Enter on login
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && document.getElementById('login-screen').classList.contains('active')) login();
-  });
 </script>
 </body>
 </html>
