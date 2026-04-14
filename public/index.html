@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScholarAI — Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #18181f;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --text: #f0f0f5;
+      --muted: #888896;
+      --accent: #7c6aff;
+      --accent2: #a78bfa;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
+
+    /* ── Screens ──────────────────────────────────────────────────────────── */
+    .screen { display: none; height: 100vh; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    /* ── Login ────────────────────────────────────────────────────────────── */
+    #login-screen {
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,106,255,0.12) 0%, transparent 60%);
+    }
+
+    .login-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 380px;
+      position: relative;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 21px;
+      background: linear-gradient(135deg, rgba(124,106,255,0.3), transparent 50%, rgba(34,197,94,0.15));
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .login-logo {
+      font-family: var(--font-head);
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 40%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .login-sub { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .field input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field input:focus { border-color: var(--accent); }
+
+    .login-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .login-btn:hover { opacity: 0.9; }
+    .login-btn:active { transform: scale(0.98); }
+
+    .login-hint {
+      margin-top: 20px;
+      padding: 14px;
+      background: var(--bg3);
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .login-hint span { color: var(--text); font-family: var(--font-mono); }
+
+    .login-error {
+      color: var(--red);
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* ── App Layout ───────────────────────────────────────────────────────── */
+    #app-screen {
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 14px;
+    }
+
+    .sidebar-logo {
+      font-family: var(--font-head);
+      font-size: 18px;
+      font-weight: 700;
+      padding: 4px 8px 20px;
+      background: linear-gradient(135deg, #fff 40%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 8px;
+      background: var(--bg3);
+      border-radius: 10px;
+      margin-bottom: 24px;
+    }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .role-admin .user-avatar { background: rgba(124,106,255,0.2); color: var(--accent2); }
+    .role-student .user-avatar { background: rgba(34,197,94,0.15); color: var(--green); }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 2px;
+      font-family: var(--font-mono);
+    }
+    .role-admin .user-role { background: rgba(124,106,255,0.15); color: var(--accent2); }
+    .role-student .user-role { background: rgba(34,197,94,0.12); color: var(--green); }
+
+    .nav-section-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 8px;
+      margin-bottom: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+      user-select: none;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: rgba(124,106,255,0.12); color: var(--accent2); }
+    .nav-icon { width: 18px; text-align: center; font-size: 15px; }
+
+    .sidebar-bottom { margin-top: auto; }
+    .logout-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+    }
+    .logout-btn:hover { color: var(--red); background: rgba(239,68,68,0.08); }
+
+    /* ── Main content ────────────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .page-title {
+      font-family: var(--font-head);
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .inference-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(124,106,255,0.1);
+      color: var(--accent2);
+      border: 1px solid rgba(124,106,255,0.2);
+    }
+
+    /* ── Content panes ───────────────────────────────────────────────────── */
+    .content-pane { display: none; flex: 1; overflow-y: auto; padding: 24px; }
+    .content-pane.active { display: block; }
+
+    /* ── Stats grid ──────────────────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 60px; height: 60px;
+      border-radius: 0 14px 0 60px;
+      opacity: 0.08;
+    }
+    .stat-card.purple::after { background: var(--accent); }
+    .stat-card.green::after  { background: var(--green); }
+    .stat-card.amber::after  { background: var(--amber); }
+    .stat-card.red::after    { background: var(--red); }
+
+    .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .stat-value { font-family: var(--font-head); font-size: 30px; font-weight: 700; }
+    .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Content rows ────────────────────────────────────────────────────── */
+    .content-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Dept bars ───────────────────────────────────────────────────────── */
+    .dept-row { margin-bottom: 14px; }
+    .dept-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+    .dept-bar-bg { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .dept-bar-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+
+    /* ── Table ───────────────────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 12px; color: var(--muted); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    tr:last-child td { border: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+    }
+    .badge-green { background: rgba(34,197,94,0.12); color: var(--green); }
+    .badge-amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+    .badge-red   { background: rgba(239,68,68,0.1);  color: var(--red); }
+    .badge-gray  { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+    /* ── Chat Pane ───────────────────────────────────────────────────────── */
+    #chat-pane { display: none; flex-direction: column; height: 100%; padding: 0; }
+    #chat-pane.active { display: flex; }
+
+    .chat-header { padding: 20px 24px 0; flex-shrink: 0; }
+    .chat-header h2 { font-family: var(--font-head); font-size: 20px; font-weight: 600; }
+    .chat-header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .msg { display: flex; gap: 12px; max-width: 85%; animation: msgIn 0.25s ease; }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .msg-avatar { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 2px; }
+    .msg.user .msg-avatar { background: var(--accent); color: white; }
+    .msg.bot  .msg-avatar { background: var(--bg3); border: 1px solid var(--border); }
+
+    .msg-content { flex: 1; }
+    .msg-bubble { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.6; }
+    .msg.user .msg-bubble { background: var(--accent); color: white; border-radius: 14px 4px 14px 14px; }
+    .msg.bot .msg-bubble { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px 14px 14px 14px; }
+
+    .msg-sql {
+      margin-top: 8px; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; font-family: var(--font-mono); font-size: 12px;
+      color: var(--muted); white-space: pre-wrap; word-break: break-all;
+    }
+    .msg-sql-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 6px; font-weight: 500; }
+    .msg-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .msg.user .msg-time { text-align: right; }
+
+    /* Typing indicator */
+    .typing-dots { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
+    .typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: dot 1.4s infinite ease-in-out; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot { 0%,80%,100% { transform: scale(0.7); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+
+    /* Quick queries */
+    .quick-queries { padding: 0 24px 12px; display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+    .quick-query { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.15s; font-family: var(--font-body); }
+    .quick-query:hover { border-color: var(--accent); color: var(--accent2); }
+
+    /* Chat input area */
+    .chat-input-area { padding: 12px 24px 20px; flex-shrink: 0; border-top: 1px solid var(--border); }
+    .chat-input-row { display: flex; gap: 10px; align-items: flex-end; background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; padding: 10px 14px; transition: border-color 0.2s; }
+    .chat-input-row:focus-within { border-color: var(--accent); }
+
+    #chat-input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: var(--font-body); font-size: 14px; resize: none; max-height: 120px; line-height: 1.5; }
+    #chat-input::placeholder { color: var(--muted); }
+
+    .send-btn { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.15s, transform 0.1s; color: white; }
+    .send-btn:hover { opacity: 0.85; }
+    .send-btn:active { transform: scale(0.93); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Scrollbar ───────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* ── Skeleton loader ─────────────────────────────────────────────────── */
+    .skeleton { background: linear-gradient(90deg, var(--bg3) 25%, rgba(255,255,255,0.05) 50%, var(--bg3) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; height: 16px; }
+    @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  </style>
+</head>
+<body>
+
+<!-- ── Login Screen ─────────────────────────────────────────────────────── -->
+<div id="login-screen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">ScholarAI</div>
+    <div class="login-sub">Role-aware intelligent database assistant</div>
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="login-user" value="admin" placeholder="Enter username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" value="admin123" placeholder="Enter password">
+    </div>
+    <div id="login-error" class="login-error">Invalid credentials. Please try again.</div>
+    <button class="login-btn" onclick="login()">Sign in →</button>
+
+    <div class="login-hint">
+      <strong>Demo accounts:</strong><br>
+      Admin: <span>admin</span> / <span>admin123</span><br>
+      Student: <span>john_doe</span> / <span>student123</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── App Screen ───────────────────────────────────────────────────────── -->
+<div id="app-screen" class="screen">
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">ScholarAI</div>
+
+    <div class="user-badge" id="user-badge">
+      <div class="user-avatar" id="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">Admin</div>
+        <span class="user-role" id="user-role">admin</span>
+      </div>
+    </div>
+
+    <div class="nav-section-label" id="nav-label">Navigation</div>
+
+    <div class="nav-item active" id="nav-dashboard" onclick="showPane('dashboard')" style="display:none">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-item" id="nav-courses" onclick="showPane('courses')">
+      <span class="nav-icon">◷</span> Courses
+    </div>
+    <div class="nav-item" id="nav-chat" onclick="showPane('chat')">
+      <span class="nav-icon">◎</span> AI Assistant
+    </div>
+
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="logout()">
+        <span>⊗</span> Sign out
+      </button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="inference-badge" id="inference-badge">⬡ FastAPI · Ollama</div>
+    </div>
+
+    <!-- Dashboard Pane (admin only) -->
+    <div class="content-pane active" id="dashboard-pane">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card purple">
+          <div class="stat-label">Total Students</div>
+          <div class="stat-value" id="s-total"><div class="skeleton" style="width:60px;height:36px"></div></div>
+          <div class="stat-sub" id="s-active"></div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Courses</div>
+          <div class="stat-value" id="s-courses"><div class="skeleton" style="width:40px;height:36px"></div></div>
+          <div class="stat-sub" id="s-enrollments"></div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Avg GPA</div>
+          <div class="stat-value" id="s-gpa"><div class="skeleton" style="width:60px;height:36px"></div></div>
+          <div class="stat-sub">across all students</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Fee Defaulters</div>
+          <div class="stat-value" id="s-fees"><div class="skeleton" style="width:40px;height:36px"></div></div>
+          <div class="stat-sub">overdue payments</div>
+        </div>
+      </div>
+
+      <div class="content-row">
+        <div class="card">
+          <div class="card-title">By Department</div>
+          <div id="dept-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Enrollments</div>
+          <table>
+            <thead><tr><th>Name</th><th>Department</th><th>Year</th><th>GPA</th></tr></thead>
+            <tbody id="recent-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Courses Pane (all roles) -->
+    <div class="content-pane" id="courses-pane">
+      <div class="card">
+        <div class="card-title">Available Courses</div>
+        <table>
+          <thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Credits</th><th>Instructor</th><th>Availability</th></tr></thead>
+          <tbody id="courses-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Chat Pane -->
+    <div id="chat-pane" class="content-pane">
+      <div class="chat-header">
+        <h2>AI Assistant</h2>
+        <p id="chat-role-desc">Ask anything about the school database.</p>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <!-- Welcome message injected via JS -->
+      </div>
+
+      <div class="quick-queries" id="quick-queries"></div>
+
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea id="chat-input" rows="1" placeholder="Ask me anything about the database..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API = ''; // Empty defaults to current host/port, perfect for FastAPI static files
+  let currentUser = null;
+  let chatHistory = [];
+
+  const QUICK_QUERIES = {
+    admin: [
+      'How many students are there?',
+      'Which department has the most students?',
+      'Show overdue fee records',
+      'What is the average GPA by department?'
+    ],
+    student: [
+      'What courses are available?',
+      'Which courses have open seats?',
+      'Who teaches Calculus?'
+    ]
+  };
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  async function login() {
+    const username = document.getElementById('login-user').value.trim();
+    const password = document.getElementById('login-pass').value.trim();
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (!res.ok) { errEl.style.display = 'block'; return; }
+
+      const data = await res.json();
+      currentUser = data.user;
+      setupUI();
+      document.getElementById('login-screen').classList.remove('active');
+      document.getElementById('app-screen').classList.add('active');
+    } catch (e) {
+      errEl.textContent = 'Server not running. Start with: uvicorn app.main:app';
+      errEl.style.display = 'block';
+    }
+  }
+
+  function logout() {
+    currentUser = null;
+    chatHistory = [];
+    document.getElementById('chat-messages').innerHTML = '';
+    document.getElementById('app-screen').classList.remove('active');
+    document.getElementById('login-screen').classList.add('active');
+  }
+
+  // ── UI Setup ──────────────────────────────────────────────────────────────
+  function setupUI() {
+    const { username, role } = currentUser;
+    const badge = document.getElementById('user-badge');
+    badge.className = `user-badge role-${role}`;
+
+    document.getElementById('user-avatar').textContent = username[0].toUpperCase();
+    document.getElementById('user-name').textContent = username;
+    document.getElementById('user-role').textContent = role;
+
+    if (role === 'admin') {
+      document.getElementById('nav-dashboard').style.display = 'flex';
+      showPane('dashboard');
+      loadStats();
+    } else {
+      document.getElementById('nav-dashboard').style.display = 'none';
+      showPane('chat');
+    }
+
+    // Set fallback display for courses table
+    document.getElementById('courses-table').innerHTML = `
+      <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px">
+        Ask the AI Assistant: "What courses are available?" to see course data
+      </td></tr>
+    `;
+    setupChat();
+  }
+
+  // ── Pane Navigation ───────────────────────────────────────────────────────
+  function showPane(name) {
+    const titles = { dashboard: 'Dashboard', courses: 'Courses', chat: 'AI Assistant' };
+    document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-title').textContent = titles[name];
+
+    const pane = document.getElementById(name + '-pane');
+    pane.classList.add('active');
+    if (name === 'chat') {
+      pane.style.display = 'flex';
+    } else {
+      pane.style.display = '';
+    }
+
+    const navEl = document.getElementById('nav-' + name);
+    if (navEl) navEl.classList.add('active');
+  }
+
+  // ── Load Stats ────────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const stats = await fetch(`${API}/api/stats`, {
+        headers: { 'x-user-role': 'admin' }
+      }).then(r => r.json());
+
+      document.getElementById('s-total').textContent = stats.totalStudents;
+      document.getElementById('s-active').textContent = `${stats.activeStudents} active`;
+      document.getElementById('s-courses').textContent = stats.totalCourses;
+      document.getElementById('s-enrollments').textContent = `${stats.totalEnrollments} enrollments`;
+      document.getElementById('s-gpa').textContent = stats.avgGpa;
+      document.getElementById('s-fees').textContent = stats.pendingFees;
+
+      // Dept chart
+      const max = Math.max(...stats.deptBreakdown.map(d => d.count));
+      const colors = ['#7c6aff', '#22c55e', '#f59e0b', '#3b82f6'];
+      document.getElementById('dept-chart').innerHTML = stats.deptBreakdown.map((d, i) => `
+        <div class="dept-row">
+          <div class="dept-header">
+            <span style="font-size:13px">${d.department}</span>
+            <span style="color:var(--muted);font-size:12px">${d.count} students</span>
+          </div>
+          <div class="dept-bar-bg">
+            <div class="dept-bar-fill" style="width:${(d.count/max*100).toFixed(0)}%;background:${colors[i%colors.length]}"></div>
+          </div>
+        </div>
+      `).join('');
+
+      // Recent students
+      document.getElementById('recent-table').innerHTML = stats.recentStudents.map(s => `
+        <tr>
+          <td>${s.name}</td>
+          <td style="color:var(--muted)">${s.department}</td>
+          <td>Year ${s.year}</td>
+          <td><span class="badge ${s.gpa >= 3.5 ? 'badge-green' : s.gpa >= 3.0 ? 'badge-amber' : 'badge-gray'}">${s.gpa}</span></td>
+        </tr>
+      `).join('');
+
+    } catch (e) { console.error('Stats error:', e); }
+  }
+
+  // ── Chat Setup ────────────────────────────────────────────────────────────
+  function setupChat() {
+    const role = currentUser.role;
+    const isAdmin = role === 'admin';
+
+    document.getElementById('chat-role-desc').textContent = isAdmin
+      ? 'Full database access — query anything about students, courses, fees, and grades.'
+      : 'Limited access — you can query course availability and public enrollment info.';
+
+    // Quick queries
+    const queries = QUICK_QUERIES[role] || [];
+    document.getElementById('quick-queries').innerHTML = queries.map(q =>
+      `<button class="quick-query" onclick="sendQuick('${q}')">${q}</button>`
+    ).join('');
+
+    // Welcome message
+    addBotMessage(
+      isAdmin
+        ? `👋 Hello, **${currentUser.username}**! I have full access to the SQLite school database. You can ask me anything — student records, grade analytics, fee collection, enrollment stats, and more.\n\nTry: *"How many students are enrolled?"* or *"Show students with overdue fees."*`
+        : `👋 Hello! I can help you with course information and enrollment stats. Note: individual student records are private.\n\nTry: *"What courses are available?"* or *"Which courses have open seats?"*`,
+      null
+    );
+  }
+
+  function addBotMessage(text, sql) {
+    const msgs = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+
+    const sqlHtml = sql ? `
+      <div class="msg-sql">
+        <div class="msg-sql-label">Generated SQL</div>${escHtml(sql)}
+      </div>
+    ` : '';
+
+    div.innerHTML = `
+      <div class="msg-avatar">⬡</div>
+      <div class="msg-content">
+        <div class="msg-bubble">${formatMd(text)}</div>
+        ${sqlHtml}
+        <div class="msg-time">${now()}</div>
+      </div>
+    `;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function addUserMessage(text) {
+    const msgs = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `
+      <div class="msg-avatar">${currentUser.username[0].toUpperCase()}</div>
+      <div class="msg-content">
+        <div class="msg-bubble">${escHtml(text)}</div>
+        <div class="msg-time">${now()}</div>
+      </div>
+    `;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.id = 'typing-indicator';
+    div.innerHTML = `
+      <div class="msg-avatar">⬡</div>
+      <div class="msg-content">
+        <div class="msg-bubble">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    `;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    document.getElementById('typing-indicator')?.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('send-btn').disabled = true;
+
+    addUserMessage(text);
+    chatHistory.push({ role: 'user', content: text });
+
+    showTyping();
+
+    try {
+      const res = await fetch(`${API}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': currentUser.role,
+          'x-username': currentUser.username
+        },
+        body: JSON.stringify({ message: text, history: chatHistory.slice(-10) })
+      });
+
+      const data = await res.json();
+      removeTyping();
+
+      const answer = data.answer || data.error || 'Sorry, I could not process that.';
+      chatHistory.push({ role: 'assistant', content: answer });
+
+      addBotMessage(answer, data.sql);
+
+    } catch (e) {
+      removeTyping();
+      addBotMessage('⚠️ Could not reach the server. Make sure FastAPI is running.', null);
+    }
+
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('chat-input').focus();
+  }
+
+  function sendQuick(q) {
+    document.getElementById('chat-input').value = q;
+    sendMessage();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatMd(text) {
+    return escHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function now() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Enter on login
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('login-screen').classList.contains('active')) login();
+  });
+</script>
+</body>
+</html>
