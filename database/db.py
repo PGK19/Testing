@@ -47,19 +47,31 @@ def init_db():
         cursor.executemany("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", [
             ('admin', 'admin123', 'admin'),
             ('john_doe', 'student123', 'student'),
-            ('jane_smith', 'student123', 'student')
+            ('jane_smith', 'student123', 'student'),
+            ('raja', 'student123', 'student'),
+            ('keerthana', 'student123', 'student'),
+            ('malavika', 'student123', 'student'),
+            ('prasanth', 'student123', 'student')
         ])
 
         students = [
             ('Alice Johnson', 'alice@school.edu', 'Computer Science', 2, 3.8, 'active'),
             ('Bob Martinez', 'bob@school.edu', 'Mathematics', 3, 3.2, 'active'),
             ('Carol Williams', 'carol@school.edu', 'Physics', 1, 3.9, 'active'),
+            ('Raja', 'raja@school.edu', 'Mathematics', 3, 3.5, 'active'),
+            ('Keerthana', 'keerthana@school.edu', 'Computer Science', 3, 3.7, 'active'),
+            ('Malavika','malavika@school.edu','Biology',2,3.6,'active'),
+            ('Prasanth','prasanth@school.edu','Physics', 1, 3.9, 'active')
         ]
         cursor.executemany("INSERT INTO students (name, email, department, year, gpa, status) VALUES (?, ?, ?, ?, ?, ?)", students)
 
         courses = [
             ('CS101', 'Intro to Programming', 'Computer Science', 3, 'Dr. Smith', 35, 32),
             ('MA101', 'Calculus I', 'Mathematics', 4, 'Dr. Brown', 40, 38),
+            ('PH101', 'General Physics', 'Physics', 4, 'Dr. Taylor', 30, 28),
+            ('CS201', 'Data Structures', 'Computer Science', 3, 'Dr. Lee', 30, 27),
+            ('MA201', 'Linear Algebra', 'Mathematics', 3, 'Dr. Green', 35, 33),
+            ('BI101','Intro to Biology','Biology',3,'Dr. White',30,29)
         ]
         cursor.executemany("INSERT INTO courses (code, name, department, credits, instructor, capacity, enrolled) VALUES (?, ?, ?, ?, ?, ?, ?)", courses)
 

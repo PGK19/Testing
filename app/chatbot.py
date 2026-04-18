@@ -22,7 +22,8 @@ async def process_chat(message: str, history: list, user_info: dict) -> dict:
         # 2. Validate
         validation = validate_sql(raw_sql, rbac["allowed_tables"])
         if not validation["valid"]:
-            return {"answer": f"Access denied: {validation['reason']}", "sql": raw_sql, "results": []}
+            deny_message = "permission restrict" if role != "admin" else f"Access denied: {validation['reason']}"
+            return {"answer": deny_message, "sql": raw_sql, "results": []}
 
         # 3. Execute
         results = execute_query(raw_sql)

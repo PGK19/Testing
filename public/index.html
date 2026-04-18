@@ -79,8 +79,8 @@
       font-weight: 600;
       flex-shrink: 0;
     }
-    .role-admin .user-avatar { background: rgba(124,106,255,0.2); color: var(--accent2); }
-    .role-student .user-avatar { background: rgba(34,197,94,0.15); color: var(--green); }
+    .role-admin .user-avatar { background: var(--accent2); color: var(--accent2); }
+    .role-student .user-avatar { background: var(--green); color: var(--green); }
     .user-info { flex: 1; min-width: 0; }
     .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .user-role {
@@ -166,7 +166,7 @@
       border-radius: 14px;
       display: flex;
       align-items: center;
-      background: rgba(255,255,255,0.03);
+      background: white;
       border: 1px solid rgba(255,255,255,0.06);
       padding: 4px 8px;
     }
@@ -175,7 +175,7 @@
       width: 100%;
       background: transparent;
       border: none;
-      color: var(--text);
+      color: var(--bg);
       font-family: var(--font-body);
       font-size: 13px;
       cursor: pointer;
@@ -190,8 +190,8 @@
       content: '▾';
       position: absolute;
       right: 14px;
-      font-size: 10px;
-      color: var(--muted);
+      font-size: 20px;
+      color: var(--text);
       pointer-events: none;
     }
 
@@ -319,14 +319,14 @@
     .msg.user .msg-bubble { background: var(--accent); color: white; border-radius: 14px 4px 14px 14px; }
     .msg.bot .msg-bubble { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px 14px 14px 14px; }
 
-    .msg-sql {
+    /* .msg-sql {
       margin-top: 8px; background: var(--bg3); border: 1px solid var(--border);
       border-radius: 8px; padding: 10px 14px; font-family: var(--font-mono); font-size: 12px;
       color: var(--muted); white-space: pre-wrap; word-break: break-all;
     }
     .msg-sql-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 6px; font-weight: 500; }
     .msg-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
-    .msg.user .msg-time { text-align: right; }
+    .msg.user .msg-time { text-align: right; } */
 
     /* Typing indicator */
     .typing-dots { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
@@ -402,7 +402,7 @@
   <div class="main">
     <div class="topbar">
       <div class="page-title" id="page-title">Dashboard</div>
-      <div class="inference-badge" id="inference-badge">⬡ FastAPI · Ollama</div>
+      <!-- <div class="inference-badge" id="inference-badge">⬡ FastAPI · Ollama</div> -->
     </div>
 
     <!-- Dashboard Pane -->
@@ -664,17 +664,10 @@
     const div = document.createElement('div');
     div.className = 'msg bot';
 
-    const sqlHtml = sql ? `
-      <div class="msg-sql">
-        <div class="msg-sql-label">Generated SQL</div>${escHtml(sql)}
-      </div>
-    ` : '';
-
     div.innerHTML = `
       <div class="msg-avatar">⬡</div>
       <div class="msg-content">
         <div class="msg-bubble">${formatMd(text)}</div>
-        ${sqlHtml}
         <div class="msg-time">${now()}</div>
       </div>
     `;
